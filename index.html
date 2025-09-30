@@ -1,512 +1,591 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Jay Maa Laxmi Temple Donation System</title>
-  <!-- React -->
-  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-  <!-- Babel -->
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <!-- Tailwind -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- jsPDF & html2canvas -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<base href="https://ork4kk6evitm4.ok.kimi.link">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sri Mandir - Sacred Temple Donation Platform</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Core Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+    
+    <!-- Splide CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css">
+    
+    <style>
+        :root {
+            --primary-saffron: #FF6B35;
+            --sacred-gold: #D4AF37;
+            --temple-stone: #8B7355;
+            --warm-cream: #FDF6E3;
+            --deep-maroon: #800020;
+            --forest-green: #228B22;
+            --text-dark: #3E2723;
+        }
+        
+        body {
+            background-color: var(--warm-cream);
+            font-family: 'Inter', sans-serif;
+            color: var(--text-dark);
+        }
+        
+        .font-display {
+            font-family: 'Playfair Display', serif;
+        }
+        
+        .font-spiritual {
+            font-family: 'Crimson Text', serif;
+        }
+        
+        .hero-gradient {
+            background: linear-gradient(135deg, rgba(255, 107, 53, 0.1) 0%, rgba(212, 175, 55, 0.1) 100%);
+        }
+        
+        .golden-glow {
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+        }
+        
+        .temple-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-saffron) 0%, var(--sacred-gold) 100%);
+            color: white;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 107, 53, 0.3);
+        }
+        
+        .progress-bar {
+            background: linear-gradient(90deg, var(--primary-saffron) 0%, var(--sacred-gold) 100%);
+        }
+        
+        .floating-animation {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .reveal-up {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        
+        .reveal-up.revealed {
+            opacity: 1;
+            transform: translateY(0);
+            transition: all 0.6s ease;
+        }
+        
+        #particles-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .donation-step {
+            display: none;
+        }
+        
+        .donation-step.active {
+            display: block;
+            animation: slideIn 0.5s ease-in-out;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        .amount-btn {
+            transition: all 0.3s ease;
+            border: 2px solid var(--sacred-gold);
+        }
+        
+        .amount-btn:hover, .amount-btn.selected {
+            background: var(--sacred-gold);
+            color: white;
+            transform: scale(1.05);
+        }
+    </style>
 </head>
-<body class="bg-gray-100">
-  <div id="root"></div>
-
-  <!-- Hidden receipt template for PDF -->
-  <div id="receipt-template" style="display:none; padding:20px; width:400px; font-family:monospace; background:white;">
-    <p>🪔 Jay Maa Laxmi Temple</p>
-    <p>New Building, Mantapur & Kaisira</p>
-    <p>Dist - Bhadrak - 756122</p>
-    <p>━━━━━━━━━━━━━━━━</p>
-    <p><strong>Receipt:</strong> <span id="rt-receipt"></span></p>
-    <p><strong>Name:</strong> <span id="rt-name"></span></p>
-    <p><strong>Vehicle:</strong> <span id="rt-vehicle"></span></p>
-    <p><strong>Amount:</strong> ₹<span id="rt-amount"></span></p>
-    <p><strong>Date:</strong> <span id="rt-date"></span></p>
-    <p>━━━━━━━━━━━━━━━━</p>
-    <p>Thank you for your donation!</p>
-    <p>May Goddess Laxmi bless you 🙏</p>
-  </div>
-
-  <!-- Hidden printable table for collection PDF -->
-  <div id="printable-table" style="display:none; padding:20px; width:800px; font-family:Arial, sans-serif;">
-    <h2 class="text-xl font-bold text-center mb-2">🪔 Jay Maa Laxmi Temple</h2>
-    <p class="text-center mb-1">New Building, Mantapur & Kaisira</p>
-    <p class="text-center mb-4">Dist - Bhadrak - 756122</p>
-    <p class="text-center mb-2">Donation Report — Date: <span id="print-date"></span></p>
-    <table style="width:100%; border-collapse:collapse; margin-top:10px;">
-      <thead>
-        <tr>
-          <th style="border:1px solid #333; padding:6px; background:#f1f1f1;">Receipt</th>
-          <th style="border:1px solid #333; padding:6px; background:#f1f1f1;">Name</th>
-          <th style="border:1px solid #333; padding:6px; background:#f1f1f1;">Vehicle</th>
-          <th style="border:1px solid #333; padding:6px; background:#f1f1f1;">Mobile</th>
-          <th style="border:1px solid #333; padding:6px; background:#f1f1f1;">Amount (₹)</th>
-          <th style="border:1px solid #333; padding:6px; background:#f1f1f1;">Time</th>
-        </tr>
-      </thead>
-      <tbody id="print-rows"></tbody>
-    </table>
-    <p class="mt-4 text-right">Total: ₹<span id="print-total"></span></p>
-  </div>
-
-  <script type="text/babel">
-    const { useState, useMemo } = React;
-    const { jsPDF } = window.jspdf;
-
-    // --- Icons ---
-    const Phone = (props) => (
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
-      </svg>
-    );
-
-    const Car = (props) => (
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-        <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2" />
-        <circle cx="7" cy="17" r="2" />
-        <path d="M9 17h6" />
-        <circle cx="17" cy="17" r="2" />
-      </svg>
-    );
-
-    const User = (props) => (
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-        <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
-        <circle cx="12" cy="7" r="4" />
-      </svg>
-    );
-
-    const IndianRupee = (props) => (
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-        <path d="M6 3h12" />
-        <path d="M6 8h12" />
-        <path d="m6 13 8.5 8" />
-        <path d="M6 13h3" />
-        <path d="M9 13c6.667 0 6.667-10 0-10" />
-      </svg>
-    );
-
-    const Send = (props) => (
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-        <path d="m22 2-7 20-4-9-9-4Z" />
-        <path d="M22 2 11 13" />
-      </svg>
-    );
-
-    const CheckCircle = (props) => (
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-        <polyline points="22 4 12 14.01 9 11.01" />
-      </svg>
-    );
-
-    const FileText = (props) => (
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-        <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
-        <polyline points="14 2 14 8 20 8" />
-        <line x1="16" x2="8" y1="13" y2="13" />
-        <line x1="16" x2="8" y1="17" y2="17" />
-        <line x1="10" x2="8" y1="9" y2="9" />
-      </svg>
-    );
-
-    const Download = (props) => (
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-        <polyline points="7 10 12 15 17 10" />
-        <line x1="12" x2="12" y1="15" y2="3" />
-      </svg>
-    );
-
-    const AlertTriangle = (props) => (
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-        <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
-        <line x1="12" x2="12" y1="9" y2="13" />
-        <line x1="12" x2="12.01" y1="17" y2="17" />
-      </svg>
-    );
-
-    function TempleDonationApp() {
-      const [formData, setFormData] = useState({
-        donorName: '',
-        vehicleNumber: '',
-        mobileNumber: '',
-        amount: ''
-      });
-
-      const [donations, setDonations] = useState([]);
-      const [receiptSent, setReceiptSent] = useState(false);
-      const [currentReceipt, setCurrentReceipt] = useState(null);
-      const [filterDate, setFilterDate] = useState(new Date().toISOString().split('T')[0]);
-      const [duplicateWarning, setDuplicateWarning] = useState(false);
-
-      const todayDonations = useMemo(() => {
-        return donations.filter(d => d.isoDate === new Date().toISOString().split('T')[0]);
-      }, [donations]);
-
-      const handleInputChange = (field, value) => {
-        setFormData(prev => ({ ...prev, [field]: value }));
-        if (field === 'donorName' || field === 'vehicleNumber') {
-          setDuplicateWarning(false);
-        }
-      };
-
-      const isDuplicate = () => {
-        const { donorName, vehicleNumber } = formData;
-        if (!donorName && !vehicleNumber) return false;
-        return todayDonations.some(d =>
-          d.donorName.toLowerCase() === donorName.toLowerCase() &&
-          d.vehicleNumber.toLowerCase() === vehicleNumber.toLowerCase()
-        );
-      };
-
-      const generateReceiptNumber = () => {
-        return `JMLT${Date.now().toString().slice(-8)}`;
-      };
-
-      const generateWhatsAppMessage = (receipt) => {
-        const msg = `🪔 *Jay Maa Laxmi Temple*\n` +
-          `New Building, Mantapur & Kaisira\n` +
-          `Dist - Bhadrak - 756122\n\n` +
-          `*Receipt:* ${receipt.receiptNumber}\n` +
-          `*Name:* ${receipt.donorName}\n` +
-          (receipt.vehicleNumber ? `*Vehicle:* ${receipt.vehicleNumber}\n` : '') +
-          `*Amount:* ₹${receipt.amount}\n` +
-          `*Date:* ${receipt.date}\n\n` +
-          `Thank you for your donation!\nMay Goddess Laxmi bless you 🙏`;
-        return encodeURIComponent(msg);
-      };
-
-      const handleWhatsAppShare = () => {
-        if (!currentReceipt?.mobileNumber) {
-          alert('Mobile number is required to share via WhatsApp.');
-          return;
-        }
-        const cleanNumber = currentReceipt.mobileNumber.replace(/\D/g, '');
-        if (cleanNumber.length !== 10) {
-          alert('Please enter a valid 10-digit mobile number.');
-          return;
-        }
-        const waUrl = `https://wa.me/91${cleanNumber}?text=${generateWhatsAppMessage(currentReceipt)}`;
-        window.open(waUrl, '_blank');
-      };
-
-      const downloadPDF = async () => {
-        if (!currentReceipt) return;
-        const rt = document.getElementById('receipt-template');
-        document.getElementById('rt-receipt').textContent = currentReceipt.receiptNumber;
-        document.getElementById('rt-name').textContent = currentReceipt.donorName;
-        document.getElementById('rt-vehicle').textContent = currentReceipt.vehicleNumber || '—';
-        document.getElementById('rt-amount').textContent = currentReceipt.amount;
-        document.getElementById('rt-date').textContent = currentReceipt.date;
-
-        const canvas = await html2canvas(rt);
-        const imgData = canvas.toDataURL('image/png');
-        const pdf = new jsPDF('p', 'mm', 'a5');
-        const width = pdf.internal.pageSize.getWidth();
-        const height = (canvas.height * width) / canvas.width;
-        pdf.addImage(imgData, 'PNG', 0, 0, width, Math.min(height, 297));
-        pdf.save(`JMLT_Receipt_${currentReceipt.receiptNumber}.pdf`);
-      };
-
-      const handleSubmit = () => {
-        const { donorName, amount } = formData;
-        if (!donorName || !amount) {
-          alert('Donor Name and Amount are required.');
-          return;
-        }
-
-        if (isDuplicate()) {
-          setDuplicateWarning(true);
-          return;
-        }
-
-        const receiptNumber = generateReceiptNumber();
-        const now = new Date();
-        const newDonation = {
-          ...formData,
-          receiptNumber,
-          date: now.toLocaleDateString('en-IN'),
-          isoDate: now.toISOString().split('T')[0],
-          time: now.toLocaleTimeString('en-IN')
-        };
-
-        setDonations(prev => [newDonation, ...prev]);
-        setCurrentReceipt(newDonation);
-        setReceiptSent(true);
-        setDuplicateWarning(false);
-
-        setTimeout(() => {
-          setReceiptSent(false);
-          setCurrentReceipt(null);
-        }, 8000);
-
-        setFormData({ donorName: '', vehicleNumber: '', mobileNumber: '', amount: '' });
-      };
-
-      const filteredDonations = useMemo(() => {
-        return donations.filter(d => d.isoDate === filterDate);
-      }, [donations, filterDate]);
-
-      const totalDonations = filteredDonations.reduce((sum, d) => sum + parseFloat(d.amount || 0), 0);
-
-      // --- PDF Export for Collection ---
-      const downloadCollectionPDF = async () => {
-        if (filteredDonations.length === 0) {
-          alert('No data to export.');
-          return;
-        }
-
-        const printDateEl = document.getElementById('print-date');
-        const printRowsEl = document.getElementById('print-rows');
-        const printTotalEl = document.getElementById('print-total');
-
-        const displayDate = filterDate === new Date().toISOString().split('T')[0] 
-          ? 'Today' 
-          : new Date(filterDate).toLocaleDateString('en-IN');
-        printDateEl.textContent = displayDate;
-
-        printRowsEl.innerHTML = '';
-        filteredDonations.forEach(d => {
-          const row = document.createElement('tr');
-          row.innerHTML = `
-            <td style="border:1px solid #333; padding:6px;">${d.receiptNumber}</td>
-            <td style="border:1px solid #333; padding:6px;">${d.donorName}</td>
-            <td style="border:1px solid #333; padding:6px;">${d.vehicleNumber || '—'}</td>
-            <td style="border:1px solid #333; padding:6px;">${d.mobileNumber || '—'}</td>
-            <td style="border:1px solid #333; padding:6px;">${parseFloat(d.amount).toLocaleString('en-IN')}</td>
-            <td style="border:1px solid #333; padding:6px;">${d.time}</td>
-          `;
-          printRowsEl.appendChild(row);
-        });
-
-        printTotalEl.textContent = totalDonations.toLocaleString('en-IN');
-
-        const element = document.getElementById('printable-table');
-        const canvas = await html2canvas(element);
-        const imgData = canvas.toDataURL('image/png');
-        const pdf = new jsPDF('p', 'mm', 'a4');
-        const width = pdf.internal.pageSize.getWidth();
-        const height = (canvas.height * width) / canvas.width;
-        pdf.addImage(imgData, 'PNG', 0, 0, width, Math.min(height, 297));
-        pdf.save(`JMLT_Collection_${filterDate}.pdf`);
-      };
-
-      // --- CSV Export ---
-      const downloadCSV = () => {
-        if (filteredDonations.length === 0) {
-          alert('No data to export.');
-          return;
-        }
-
-        const headers = ['Receipt', 'Name', 'Vehicle', 'Mobile', 'Amount', 'Date', 'Time'];
-        const rows = filteredDonations.map(d => [
-          d.receiptNumber,
-          `"${d.donorName}"`,
-          d.vehicleNumber || '',
-          d.mobileNumber || '',
-          d.amount,
-          d.date,
-          d.time
-        ]);
-
-        let csvContent = 'text/csv;charset=utf-8,';
-        csvContent += headers.join(',') + '\n';
-        csvContent += rows.map(e => e.join(',')).join('\n');
-
-        const encodedUri = encodeURI(csvContent);
-        const link = document.createElement('a');
-        link.setAttribute('href', encodedUri);
-        link.setAttribute('download', `JMLT_Collection_${filterDate}.csv`);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      };
-
-      return (
-        <div className="min-h-screen bg-gradient-to-br from-orange-50 via-yellow-50 to-red-50">
-          <div className="container mx-auto px-4 py-8 max-w-6xl">
-            <div className="bg-gradient-to-r from-orange-600 to-red-600 rounded-lg shadow-xl p-6 mb-8 text-white">
-              <h1 className="text-3xl font-bold text-center mb-2">🪔 Jay Maa Laxmi Temple</h1>
-              <p className="text-center text-orange-100">New Building, Mantapur & Kaisira, Dist - Bhadrak - 756122</p>
+<body>
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full bg-white/90 backdrop-blur-md z-50 border-b border-saffron/20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <h1 class="font-display text-2xl font-bold text-primary-saffron">🕉️ Sri Mandir</h1>
+                </div>
+                <div class="hidden md:flex space-x-8">
+                    <a href="#home" class="text-text-dark hover:text-primary-saffron transition-colors">Home</a>
+                    <a href="transparency.html" class="text-text-dark hover:text-primary-saffron transition-colors">Transparency</a>
+                    <a href="admin.html" class="text-text-dark hover:text-primary-saffron transition-colors">Admin</a>
+                    <a href="#contact" class="text-text-dark hover:text-primary-saffron transition-colors">Contact</a>
+                </div>
+                <button class="md:hidden" id="mobile-menu-btn">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
             </div>
-
-            <div className="grid md:grid-cols-2 gap-8">
-              {/* Donation Form */}
-              <div className="bg-white rounded-lg shadow-lg p-6">
-                <h2 className="text-2xl font-bold text-orange-700 mb-6 flex items-center gap-2">
-                  <FileText className="w-6 h-6" /> Donation Entry
-                </h2>
-
-                {duplicateWarning && (
-                  <div className="mb-4 p-3 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 flex items-start gap-2">
-                    <AlertTriangle className="mt-0.5 flex-shrink-0" />
-                    <span><strong>Possible duplicate!</strong> Same name and vehicle already donated today.</span>
-                  </div>
-                )}
-
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      <User className="w-4 h-4 inline mr-2" /> Donor Name *
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.donorName}
-                      onChange={(e) => handleInputChange('donorName', e.target.value)}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                      placeholder="Enter donor name"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      <Car className="w-4 h-4 inline mr-2" /> Vehicle Number (Optional)
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.vehicleNumber}
-                      onChange={(e) => handleInputChange('vehicleNumber', e.target.value.toUpperCase())}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent uppercase"
-                      placeholder="e.g. OD01AB1234"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      <Phone className="w-4 h-4 inline mr-2" /> Mobile Number (Optional)
-                    </label>
-                    <input
-                      type="tel"
-                      value={formData.mobileNumber}
-                      onChange={(e) => handleInputChange('mobileNumber', e.target.value)}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                      placeholder="e.g. 9876543210"
-                      maxLength="10"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      <IndianRupee className="w-4 h-4 inline mr-2" /> Donation Amount (₹) *
-                    </label>
-                    <input
-                      type="number"
-                      value={formData.amount}
-                      onChange={(e) => handleInputChange('amount', e.target.value)}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                      placeholder="Enter amount"
-                      min="1"
-                    />
-                  </div>
-
-                  <button
-                    onClick={handleSubmit}
-                    className="w-full bg-gradient-to-r from-orange-600 to-red-600 text-white py-3 rounded-lg font-semibold hover:from-orange-700 hover:to-red-700 transition-all shadow-md flex items-center justify-center gap-2"
-                  >
-                    <Send className="w-5 h-5" /> Submit & Generate Receipt
-                  </button>
-                </div>
-
-                {receiptSent && currentReceipt && (
-                  <div className="mt-4 bg-green-50 border-2 border-green-500 rounded-lg p-4">
-                    <div className="flex items-center gap-2 text-green-700 font-semibold mb-2">
-                      <CheckCircle className="w-5 h-5" /> Receipt Generated!
-                    </div>
-                    <p className="text-sm text-green-600">
-                      <strong>{currentReceipt.donorName}</strong> donated ₹{currentReceipt.amount}
-                    </p>
-                    <p className="text-xs text-green-600">
-                      Receipt: {currentReceipt.receiptNumber} • {currentReceipt.date}
-                    </p>
-                    <div className="mt-3 flex gap-2">
-                      {currentReceipt.mobileNumber && (
-                        <button
-                          onClick={handleWhatsAppShare}
-                          className="text-sm bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"
-                        >
-                          Share via WhatsApp
-                        </button>
-                      )}
-                      <button
-                        onClick={downloadPDF}
-                        className="text-sm bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
-                      >
-                        Download PDF
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Donations List with Export */}
-              <div className="bg-white rounded-lg shadow-lg p-6">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-2xl font-bold text-orange-700">Donations</h2>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={downloadCollectionPDF}
-                      className="text-sm bg-red-600 text-white px-3 py-1 rounded flex items-center gap-1 hover:bg-red-700"
-                    >
-                      <Download className="w-4 h-4" /> PDF
-                    </button>
-                    <button
-                      onClick={downloadCSV}
-                      className="text-sm bg-green-600 text-white px-3 py-1 rounded flex items-center gap-1 hover:bg-green-700"
-                    >
-                      <Download className="w-4 h-4" /> Excel
-                    </button>
-                  </div>
-                </div>
-
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Filter by Date</label>
-                  <input
-                    type="date"
-                    value={filterDate}
-                    onChange={(e) => setFilterDate(e.target.value)}
-                    className="px-3 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-orange-500"
-                  />
-                </div>
-
-                <div className="bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg p-4 mb-4">
-                  <p className="text-sm opacity-90">Total Collected</p>
-                  <p className="text-2xl font-bold">₹ {totalDonations.toLocaleString('en-IN')}</p>
-                  <p className="text-sm opacity-90">{filteredDonations.length} donations</p>
-                </div>
-
-                <div className="space-y-3 max-h-96 overflow-y-auto">
-                  {filteredDonations.length === 0 ? (
-                    <p className="text-gray-500 text-center py-8">No donations on this date</p>
-                  ) : (
-                    filteredDonations.map((d, i) => (
-                      <div key={i} className="border border-gray-200 rounded p-3">
-                        <div className="flex justify-between">
-                          <span className="font-medium">{d.donorName}</span>
-                          <span className="text-green-600 font-bold">₹{d.amount}</span>
-                        </div>
-                        {d.vehicleNumber && <p className="text-xs text-gray-600">{d.vehicleNumber}</p>}
-                        <p className="text-xs text-gray-500">{d.date} {d.time} • {d.receiptNumber}</p>
-                      </div>
-                    ))
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
-      );
-    }
+    </nav>
 
-    const root = ReactDOM.createRoot(document.getElementById('root'));
-    root.render(<TempleDonationApp />);
-  </script>
+    <!-- Hero Section -->
+    <section id="home" class="relative min-h-screen flex items-center justify-center overflow-hidden">
+        <div id="particles-container" class="absolute inset-0"></div>
+        
+        <div class="hero-gradient absolute inset-0"></div>
+        
+        <div class="hero-content max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <div class="reveal-up">
+                <h1 class="font-display text-5xl md:text-7xl font-bold mb-6">
+                    <span class="bg-gradient-to-r from-primary-saffron to-sacred-gold bg-clip-text text-transparent">
+                        Support Our Sacred Mission
+                    </span>
+                </h1>
+            </div>
+            
+            <div class="reveal-up">
+                <p class="text-xl md:text-2xl mb-8 max-w-3xl mx-auto font-light leading-relaxed">
+                    Join us in building a spiritual sanctuary that will serve our community for generations. 
+                    Every contribution brings us closer to completing this divine mission.
+                </p>
+            </div>
+            
+            <div class="reveal-up">
+                <div class="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
+                    <button onclick="scrollToDonation()" class="btn-primary px-8 py-4 rounded-full text-lg font-semibold golden-glow">
+                        Make a Donation 🙏
+                    </button>
+                    <a href="transparency.html" class="px-8 py-4 border-2 border-sacred-gold rounded-full text-lg font-semibold text-sacred-gold hover:bg-sacred-gold hover:text-white transition-all">
+                        View Transparency Report
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Progress Overview -->
+            <div class="reveal-up">
+                <div class="temple-card rounded-2xl p-8 max-w-2xl mx-auto">
+                    <h3 class="font-display text-2xl font-semibold mb-6 text-center">Our Progress</h3>
+                    <div class="mb-4">
+                        <div class="flex justify-between text-sm mb-2">
+                            <span>₹12,45,678 raised</span>
+                            <span>Goal: ₹25,00,000</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-3">
+                            <div class="progress-bar h-3 rounded-full" style="width: 49.8%"></div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-4 text-center">
+                        <div>
+                            <div class="text-2xl font-bold text-primary-saffron">49.8%</div>
+                            <div class="text-sm text-gray-600">Funded</div>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold text-primary-saffron">1,247</div>
+                            <div class="text-sm text-gray-600">Donors</div>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold text-primary-saffron">6</div>
+                            <div class="text-sm text-gray-600">Months Left</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Donation Form Section -->
+    <section id="donation" class="py-20 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-4xl mx-auto">
+            <div class="text-center mb-12 reveal-up">
+                <h2 class="font-display text-4xl font-bold mb-4">
+                    <span class="bg-gradient-to-r from-primary-saffron to-sacred-gold bg-clip-text text-transparent">
+                        Make Your Donation
+                    </span>
+                </h2>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                    Your generous contribution helps build a sacred space for spiritual growth and community service.
+                </p>
+            </div>
+            
+            <div class="temple-card rounded-2xl p-8 reveal-up">
+                <!-- Progress Indicator -->
+                <div class="flex justify-center mb-8">
+                    <div class="flex items-center space-x-4">
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 rounded-full bg-primary-saffron text-white flex items-center justify-center text-sm font-semibold">1</div>
+                            <span class="ml-2 text-sm font-medium">Amount</span>
+                        </div>
+                        <div class="w-8 h-0.5 bg-gray-300"></div>
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 rounded-full bg-gray-300 text-gray-600 flex items-center justify-center text-sm font-semibold">2</div>
+                            <span class="ml-2 text-sm text-gray-600">Details</span>
+                        </div>
+                        <div class="w-8 h-0.5 bg-gray-300"></div>
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 rounded-full bg-gray-300 text-gray-600 flex items-center justify-center text-sm font-semibold">3</div>
+                            <span class="ml-2 text-sm text-gray-600">Payment</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Step 1: Amount Selection -->
+                <div id="step-1" class="donation-step active">
+                    <h3 class="font-display text-2xl font-semibold mb-6 text-center">Select Donation Amount</h3>
+                    
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                        <button class="amount-btn p-4 rounded-lg text-center" data-amount="101">
+                            <div class="text-2xl font-bold">₹101</div>
+                            <div class="text-sm text-gray-600">Basic</div>
+                        </button>
+                        <button class="amount-btn p-4 rounded-lg text-center" data-amount="501">
+                            <div class="text-2xl font-bold">₹501</div>
+                            <div class="text-sm text-gray-600">Standard</div>
+                        </button>
+                        <button class="amount-btn p-4 rounded-lg text-center" data-amount="1001">
+                            <div class="text-2xl font-bold">₹1001</div>
+                            <div class="text-sm text-gray-600">Premium</div>
+                        </button>
+                        <button class="amount-btn p-4 rounded-lg text-center" data-amount="5001">
+                            <div class="text-2xl font-bold">₹5001</div>
+                            <div class="text-sm text-gray-600">Generous</div>
+                        </button>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium mb-2">Custom Amount</label>
+                        <input type="number" id="custom-amount" placeholder="Enter amount" 
+                               class="w-full p-3 border border-gray-300 rounded-lg focus:border-sacred-gold focus:outline-none">
+                    </div>
+                    
+                    <div class="flex items-center mb-6">
+                        <input type="checkbox" id="anonymous" class="mr-2">
+                        <label for="anonymous" class="text-sm">Make this donation anonymous</label>
+                    </div>
+                    
+                    <button onclick="nextStep()" class="btn-primary w-full py-3 rounded-lg font-semibold">
+                        Continue to Details →
+                    </button>
+                </div>
+                
+                <!-- Step 2: Donor Details -->
+                <div id="step-2" class="donation-step">
+                    <h3 class="font-display text-2xl font-semibold mb-6 text-center">Your Information</h3>
+                    
+                    <div class="grid md:grid-cols-2 gap-6 mb-6">
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Full Name *</label>
+                            <input type="text" id="donor-name" placeholder="Enter your full name" 
+                                   class="w-full p-3 border border-gray-300 rounded-lg focus:border-sacred-gold focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Email Address *</label>
+                            <input type="email" id="donor-email" placeholder="Enter your email" 
+                                   class="w-full p-3 border border-gray-300 rounded-lg focus:border-sacred-gold focus:outline-none">
+                        </div>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 gap-6 mb-6">
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Phone Number *</label>
+                            <input type="tel" id="donor-phone" placeholder="Enter your phone number" 
+                                   class="w-full p-3 border border-gray-300 rounded-lg focus:border-sacred-gold focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Address</label>
+                            <input type="text" id="donor-address" placeholder="Enter your address" 
+                                   class="w-full p-3 border border-gray-300 rounded-lg focus:border-sacred-gold focus:outline-none">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium mb-2">Message (Optional)</label>
+                        <textarea id="donor-message" rows="3" placeholder="Share your thoughts or prayers..." 
+                                  class="w-full p-3 border border-gray-300 rounded-lg focus:border-sacred-gold focus:outline-none"></textarea>
+                    </div>
+                    
+                    <div class="flex gap-4">
+                        <button onclick="prevStep()" class="flex-1 py-3 border-2 border-gray-300 rounded-lg font-semibold hover:bg-gray-50 transition-colors">
+                            ← Back
+                        </button>
+                        <button onclick="nextStep()" class="flex-1 btn-primary py-3 rounded-lg font-semibold">
+                            Continue to Payment →
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Step 3: Payment Method -->
+                <div id="step-3" class="donation-step">
+                    <h3 class="font-display text-2xl font-semibold mb-6 text-center">Payment Method</h3>
+                    
+                    <div class="grid md:grid-cols-3 gap-4 mb-8">
+                        <div class="payment-method p-4 border-2 border-gray-300 rounded-lg cursor-pointer hover:border-sacred-gold transition-colors" data-method="card">
+                            <div class="text-center">
+                                <div class="text-3xl mb-2">💳</div>
+                                <div class="font-semibold">Credit/Debit Card</div>
+                                <div class="text-sm text-gray-600">Visa, Mastercard, RuPay</div>
+                            </div>
+                        </div>
+                        <div class="payment-method p-4 border-2 border-gray-300 rounded-lg cursor-pointer hover:border-sacred-gold transition-colors" data-method="upi">
+                            <div class="text-center">
+                                <div class="text-3xl mb-2">📱</div>
+                                <div class="font-semibold">UPI Payment</div>
+                                <div class="text-sm text-gray-600">Google Pay, PhonePe, Paytm</div>
+                            </div>
+                        </div>
+                        <div class="payment-method p-4 border-2 border-gray-300 rounded-lg cursor-pointer hover:border-sacred-gold transition-colors" data-method="netbanking">
+                            <div class="text-center">
+                                <div class="text-3xl mb-2">🏦</div>
+                                <div class="font-semibold">Net Banking</div>
+                                <div class="text-sm text-gray-600">All major banks</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                        <div class="flex items-center">
+                            <div class="text-blue-600 mr-2">🔒</div>
+                            <div>
+                                <div class="font-semibold text-blue-800">Secure Payment</div>
+                                <div class="text-sm text-blue-600">Your payment information is encrypted and secure</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex gap-4">
+                        <button onclick="prevStep()" class="flex-1 py-3 border-2 border-gray-300 rounded-lg font-semibold hover:bg-gray-50 transition-colors">
+                            ← Back
+                        </button>
+                        <button onclick="processDonation()" class="flex-1 btn-primary py-3 rounded-lg font-semibold">
+                            Complete Donation 🙏
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Temple Information Section -->
+    <section class="py-20 px-4 sm:px-6 lg:px-8 bg-white/50">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-12 reveal-up">
+                <h2 class="font-display text-4xl font-bold mb-4">
+                    <span class="bg-gradient-to-r from-primary-saffron to-sacred-gold bg-clip-text text-transparent">
+                        Our Sacred Mission
+                    </span>
+                </h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    The Sri Mandir project represents more than just a temple - it's a spiritual sanctuary that will serve our community for generations to come. Built with traditional architecture and modern amenities, it will be a place of worship, learning, and community gathering.
+                </p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-12 items-center mb-16">
+                <div class="reveal-up">
+                    <img src="resources/temple-interior-golden.png" alt="Temple Interior" 
+                         class="rounded-2xl shadow-2xl w-full h-96 object-cover">
+                </div>
+                <div class="reveal-up">
+                    <h3 class="font-display text-3xl font-semibold mb-6">A Vision of Divine Beauty</h3>
+                    <p class="text-gray-600 mb-6 leading-relaxed">
+                        Our temple will feature intricate stone carvings, golden domes, and sacred architecture that follows ancient Vastu principles. Every detail has been carefully planned to create an atmosphere of peace, devotion, and spiritual elevation.
+                    </p>
+                    <p class="text-gray-600 mb-6 leading-relaxed">
+                        The main sanctum will house beautifully crafted deities, while the complex will include meditation halls, community kitchens, educational facilities, and serene gardens for contemplation.
+                    </p>
+                    <div class="space-y-3">
+                        <div class="flex items-center">
+                            <div class="w-2 h-2 bg-primary-saffron rounded-full mr-3"></div>
+                            <span>Traditional Dravidian architecture</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-2 h-2 bg-primary-saffron rounded-full mr-3"></div>
+                            <span>Modern facilities for all age groups</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-2 h-2 bg-primary-saffron rounded-full mr-3"></div>
+                            <span>Community hall for cultural events</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-2 h-2 bg-primary-saffron rounded-full mr-3"></div>
+                            <span>Peaceful meditation gardens</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Construction Timeline -->
+            <div class="reveal-up">
+                <h3 class="font-display text-3xl font-semibold mb-8 text-center">Construction Timeline</h3>
+                <div class="relative">
+                    <div class="absolute left-1/2 transform -translate-x-1/2 h-full w-0.5 bg-sacred-gold"></div>
+                    
+                    <div class="space-y-12">
+                        <div class="flex items-center">
+                            <div class="flex-1 text-right pr-8">
+                                <h4 class="font-semibold text-lg">Phase 1: Foundation & Structure</h4>
+                                <p class="text-gray-600">Completed - Sacred ground breaking and foundation laying</p>
+                            </div>
+                            <div class="w-4 h-4 bg-primary-saffron rounded-full relative z-10"></div>
+                            <div class="flex-1 pl-8">
+                                <div class="text-sm text-gray-500">March 2024</div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center">
+                            <div class="flex-1 text-right pr-8">
+                                <div class="text-sm text-gray-500">August 2024</div>
+                            </div>
+                            <div class="w-4 h-4 bg-primary-saffron rounded-full relative z-10"></div>
+                            <div class="flex-1 pl-8">
+                                <h4 class="font-semibold text-lg">Phase 2: Main Structure</h4>
+                                <p class="text-gray-600">In Progress - Wall construction and roofing</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center">
+                            <div class="flex-1 text-right pr-8">
+                                <h4 class="font-semibold text-lg">Phase 3: Interior & Finishing</h4>
+                                <p class="text-gray-600">Upcoming - Interior design and sacred installations</p>
+                            </div>
+                            <div class="w-4 h-4 bg-gray-300 rounded-full relative z-10"></div>
+                            <div class="flex-1 pl-8">
+                                <div class="text-sm text-gray-500">December 2024</div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center">
+                            <div class="flex-1 text-right pr-8">
+                                <div class="text-sm text-gray-500">March 2025</div>
+                            </div>
+                            <div class="w-4 h-4 bg-gray-300 rounded-full relative z-10"></div>
+                            <div class="flex-1 pl-8">
+                                <h4 class="font-semibold text-lg">Phase 4: Inauguration</h4>
+                                <p class="text-gray-600">Planned - Grand opening and consecration ceremony</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Recent Donors Section -->
+    <section class="py-20 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-12 reveal-up">
+                <h2 class="font-display text-4xl font-bold mb-4">
+                    <span class="bg-gradient-to-r from-primary-saffron to-sacred-gold bg-clip-text text-transparent">
+                        Recent Donors
+                    </span>
+                </h2>
+                <p class="text-xl text-gray-600">
+                    Join our community of generous supporters
+                </p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 reveal-up">
+                <div class="temple-card rounded-xl p-6 text-center">
+                    <div class="w-12 h-12 bg-primary-saffron rounded-full flex items-center justify-center text-white font-bold text-xl mx-auto mb-4">R</div>
+                    <h4 class="font-semibold mb-2">Ramesh Kumar</h4>
+                    <p class="text-primary-saffron font-bold text-lg mb-2">₹5,001</p>
+                                <p class="text-sm text-gray-600">"Blessed to contribute to this divine mission"</p>
+                </div>
+                
+                <div class="temple-card rounded-xl p-6 text-center">
+                    <div class="w-12 h-12 bg-sacred-gold rounded-full flex items-center justify-center text-white font-bold text-xl mx-auto mb-4">P</div>
+                    <h4 class="font-semibold mb-2">Priya Sharma</h4>
+                    <p class="text-primary-saffron font-bold text-lg mb-2">₹2,501</p>
+                    <p class="text-sm text-gray-600">"May this temple bring peace to all"</p>
+                </div>
+                
+                <div class="temple-card rounded-xl p-6 text-center">
+                    <div class="w-12 h-12 bg-forest-green rounded-full flex items-center justify-center text-white font-bold text-xl mx-auto mb-4">A</div>
+                    <h4 class="font-semibold mb-2">Anonymous Donor</h4>
+                    <p class="text-primary-saffron font-bold text-lg mb-2">₹11,001</p>
+                    <p class="text-sm text-gray-600">"Serving the divine cause silently"</p>
+                </div>
+            </div>
+            
+            <div class="text-center mt-8 reveal-up">
+                <a href="transparency.html" class="btn-primary px-8 py-3 rounded-full font-semibold">
+                    View All Donors
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gradient-to-r from-primary-saffron to-sacred-gold text-white py-12">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="font-display text-2xl font-bold mb-4">🕉️ Sri Mandir</h3>
+                    <p class="text-white/90 leading-relaxed">
+                        Building a sacred sanctuary for spiritual growth, community service, and cultural preservation.
+                    </p>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold mb-4">Quick Links</h4>
+                    <ul class="space-y-2 text-white/90">
+                        <li><a href="#home" class="hover:text-white transition-colors">Home</a></li>
+                        <li><a href="transparency.html" class="hover:text-white transition-colors">Transparency</a></li>
+                        <li><a href="admin.html" class="hover:text-white transition-colors">Admin Login</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold mb-4">Contact Info</h4>
+                    <div class="space-y-2 text-white/90">
+                        <div>📧 info@srimandir.org</div>
+                        <div>📞 +91 98765 43210</div>
+                        <div>📍 Temple Road, Sacred City</div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold mb-4">Follow Us</h4>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-white/90 hover:text-white transition-colors">Facebook</a>
+                        <a href="#" class="text-white/90 hover:text-white transition-colors">Twitter</a>
+                        <a href="#" class="text-white/90 hover:text-white transition-colors">Instagram</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="border-t border-white/20 mt-8 pt-8 text-center text-white/90">
+                <p>&copy; 2024 Sri Mandir Trust. All rights reserved. Built with devotion and modern technology.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="main.js"></script>
 </body>
 </html>
