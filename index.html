@@ -251,4 +251,150 @@
 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <User className="w-4 h-4 inline mr-2" /> Donor Name *
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.donorName}
+                      onChange={(e) => handleInputChange('donorName', e.target.value)}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                      placeholder="Enter donor name"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <Car className="w-4 h-4 inline mr-2" /> Vehicle Number (Optional)
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.vehicleNumber}
+                      onChange={(e) => handleInputChange('vehicleNumber', e.target.value.toUpperCase())}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent uppercase"
+                      placeholder="e.g. TN01AB1234"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <Phone className="w-4 h-4 inline mr-2" /> Mobile Number (Optional)
+                    </label>
+                    <input
+                      type="tel"
+                      value={formData.mobileNumber}
+                      onChange={(e) => handleInputChange('mobileNumber', e.target.value)}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                      placeholder="e.g. 9876543210"
+                      maxLength="10"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <IndianRupee className="w-4 h-4 inline mr-2" /> Donation Amount (₹) *
+                    </label>
+                    <input
+                      type="number"
+                      value={formData.amount}
+                      onChange={(e) => handleInputChange('amount', e.target.value)}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                      placeholder="Enter amount"
+                      min="1"
+                    />
+                  </div>
+
+                  <button
+                    onClick={handleSubmit}
+                    className="w-full bg-gradient-to-r from-orange-600 to-red-600 text-white py-3 rounded-lg font-semibold hover:from-orange-700 hover:to-red-700 transition-all shadow-md flex items-center justify-center gap-2"
+                  >
+                    <Send className="w-5 h-5" /> Submit & Generate Receipt
+                  </button>
+                </div>
+
+                {receiptSent && currentReceipt && (
+                  <div className="mt-4 bg-green-50 border-2 border-green-500 rounded-lg p-4">
+                    <div className="flex items-center gap-2 text-green-700 font-semibold mb-2">
+                      <CheckCircle className="w-5 h-5" /> Receipt Generated!
+                    </div>
+                    <p className="text-sm text-green-600">
+                      <strong>{currentReceipt.donorName}</strong> donated ₹{currentReceipt.amount}
+                    </p>
+                    <p className="text-xs text-green-600">
+                      Receipt: {currentReceipt.receiptNumber} • {currentReceipt.date}
+                    </p>
+                    <div className="mt-3 flex gap-2">
+                      {currentReceipt.mobileNumber && (
+                        <button
+                          onClick={handleWhatsAppShare}
+                          className="text-sm bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"
+                        >
+                          Share via WhatsApp
+                        </button>
+                      )}
+                      <button
+                        onClick={downloadPDF}
+                        className="text-sm bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
+                      >
+                        Download PDF
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Donations List */}
+              <div className="bg-white rounded-lg shadow-lg p-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-2xl font-bold text-orange-700">Donations</h2>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Filter by Date</label>
+                    <input
+                      type="date"
+                      value={filterDate}
+                      onChange={(e) => setFilterDate(e.target.value)}
+                      className="px-3 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    />
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg p-4 mb-6">
+                  <p className="text-sm opacity-90">Total Collected</p>
+                  <p className="text-3xl font-bold">₹ {totalDonations.toLocaleString('en-IN')}</p>
+                  <p className="text-sm opacity-90">{filteredDonations.length} donations</p>
+                </div>
+
+                <div className="space-y-3 max-h-96 overflow-y-auto">
+                  {filteredDonations.length === 0 ? (
+                    <p className="text-gray-500 text-center py-8">No donations on this date</p>
+                  ) : (
+                    filteredDonations.map((donation, index) => (
+                      <div key={`${donation.receiptNumber}-${index}`} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                        <div className="flex justify-between items-start mb-2">
+                          <div>
+                            <p className="font-semibold text-gray-800">{donation.donorName}</p>
+                            {donation.vehicleNumber && <p className="text-sm text-gray-600">{donation.vehicleNumber}</p>}
+                          </div>
+                          <p className="text-lg font-bold text-green-600">₹{donation.amount}</p>
+                        </div>
+                        <div className="flex justify-between items-center text-xs text-gray-500">
+                          {donation.mobileNumber && <span>{donation.mobileNumber}</span>}
+                          <span>{donation.date} {donation.time}</span>
+                        </div>
+                        <p className="text-xs text-gray-400 mt-1">Receipt: {donation.receiptNumber}</p>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<TempleDonationApp />);
+  </script>
+</body>
+</html>
