@@ -16,10 +16,9 @@
   <div id="root"></div>
 
   <script type="text/babel">
-    // --- app.js content starts here ---
-    const { useState } = React;
+    const { useState, useMemo } = React;
 
-    // SVG Icons
+    // --- SVG Icons (same as before) ---
     const Phone = (props) => (
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
         <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
@@ -87,6 +86,7 @@
       const [donations, setDonations] = useState([]);
       const [receiptSent, setReceiptSent] = useState(false);
       const [currentReceipt, setCurrentReceipt] = useState(null);
+      const [filterDate, setFilterDate] = useState(new Date().toISOString().split('T')[0]); // default to today
 
       const handleInputChange = (field, value) => {
         setFormData(prev => ({ ...prev, [field]: value }));
@@ -104,11 +104,13 @@
         }
 
         const receiptNumber = generateReceiptNumber();
+        const now = new Date();
         const newDonation = {
           ...formData,
           receiptNumber,
-          date: new Date().toLocaleDateString('en-IN'),
-          time: new Date().toLocaleTimeString('en-IN')
+          date: now.toLocaleDateString('en-IN'),
+          isoDate: now.toISOString().split('T')[0], // for filtering
+          time: now.toLocaleTimeString('en-IN')
         };
 
         setDonations(prev => [newDonation, ...prev]);
@@ -123,7 +125,12 @@
         setFormData({ donorName: '', vehicleNumber: '', mobileNumber: '', amount: '' });
       };
 
-      const totalDonations = donations.reduce((sum, d) => sum + parseFloat(d.amount || 0), 0);
+      // Filter donations by selected date
+      const filteredDonations = useMemo(() => {
+        return donations.filter(d => d.isoDate === filterDate);
+      }, [donations, filterDate]);
+
+      const totalDonations = filteredDonations.reduce((sum, d) => sum + parseFloat(d.amount || 0), 0);
 
       return (
         <div className="min-h-screen bg-gradient-to-br from-orange-50 via-yellow-50 to-red-50">
@@ -214,21 +221,32 @@
                 )}
               </div>
 
-              {/* Donations List */}
+              {/* Donations List with Date Filter */}
               <div className="bg-white rounded-lg shadow-lg p-6">
-                <h2 className="text-2xl font-bold text-orange-700 mb-4">Today's Collections</h2>
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-2xl font-bold text-orange-700">Today's Collections</h2>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Filter by Date</label>
+                    <input
+                      type="date"
+                      value={filterDate}
+                      onChange={(e) => setFilterDate(e.target.value)}
+                      className="px-3 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    />
+                  </div>
+                </div>
 
                 <div className="bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg p-4 mb-6">
                   <p className="text-sm opacity-90">Total Collected</p>
                   <p className="text-3xl font-bold">₹ {totalDonations.toLocaleString('en-IN')}</p>
-                  <p className="text-sm opacity-90">{donations.length} donations</p>
+                  <p className="text-sm opacity-90">{filteredDonations.length} donations</p>
                 </div>
 
                 <div className="space-y-3 max-h-96 overflow-y-auto">
-                  {donations.length === 0 ? (
-                    <p className="text-gray-500 text-center py-8">No donations recorded yet</p>
+                  {filteredDonations.length === 0 ? (
+                    <p className="text-gray-500 text-center py-8">No donations on this date</p>
                   ) : (
-                    donations.map((donation, index) => (
+                    filteredDonations.map((donation, index) => (
                       <div key={`${donation.receiptNumber}-${index}`} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
                         <div className="flex justify-between items-start mb-2">
                           <div>
@@ -249,17 +267,17 @@
               </div>
             </div>
 
-            {donations.length > 0 && (
+            {filteredDonations.length > 0 && (
               <div className="mt-8 bg-white rounded-lg shadow-lg p-6">
                 <h3 className="text-xl font-bold text-orange-700 mb-4">Sample Receipt SMS</h3>
                 <div className="bg-gray-100 rounded-lg p-4 font-mono text-sm">
                   <p>🪔 Shri Laxmi Temple</p>
                   <p>━━━━━━━━━━━━━━━━</p>
-                  <p>Receipt: {donations[0].receiptNumber}</p>
-                  <p>Name: {donations[0].donorName}</p>
-                  <p>Vehicle: {donations[0].vehicleNumber}</p>
-                  <p>Amount: ₹{donations[0].amount}</p>
-                  <p>Date: {donations[0].date}</p>
+                  <p>Receipt: {filteredDonations[0].receiptNumber}</p>
+                  <p>Name: {filteredDonations[0].donorName}</p>
+                  <p>Vehicle: {filteredDonations[0].vehicleNumber}</p>
+                  <p>Amount: ₹{filteredDonations[0].amount}</p>
+                  <p>Date: {filteredDonations[0].date}</p>
                   <p>━━━━━━━━━━━━━━━━</p>
                   <p>Thank you for your donation!</p>
                   <p>May Goddess Laxmi bless you 🙏</p>
@@ -271,10 +289,8 @@
       );
     }
 
-    // Render the app
     const root = ReactDOM.createRoot(document.getElementById('root'));
     root.render(<TempleDonationApp />);
-    // --- app.js content ends here ---
   </script>
 </body>
 </html>
